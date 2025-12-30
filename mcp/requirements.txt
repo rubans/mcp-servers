@@ -1,0 +1,7 @@
+mcp
+fastmcp
+opencv-python-headless
+pillow
+numpy
+google-genai
+pytest-cov

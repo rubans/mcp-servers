@@ -1,0 +1,76 @@
+{
+  "type": "OBJECT",
+  "properties": {
+    "total_marks": {
+      "type": "NUMBER",
+      "description": "The total marks awarded for the entire paper."
+    },
+    "total_available_marks": {
+      "type": "NUMBER",
+      "description": "The total possible marks available for the entire paper."
+    },
+    "summary_comments": {
+      "type": "STRING",
+      "description": "Overall feedback on the paper."
+    },
+    "question_breakdown": {
+      "type": "ARRAY",
+      "items": {
+        "type": "OBJECT",
+        "properties": {
+          "question_id": {
+            "type": "STRING",
+            "description": "The question number or identifier."
+          },
+          "marks_awarded": {
+            "type": "NUMBER",
+            "description": "Marks given for this question."
+          },
+          "max_marks_available": {
+            "type": "NUMBER",
+            "description": "Maximum marks possible for this question."
+          },
+          "reasoning": {
+            "type": "STRING",
+            "description": "Detailed explanation for the marks awarded."
+          },
+          "citations": {
+            "type": "ARRAY",
+            "description": "Evidence from the paper or rubric supporting the mark.",
+            "items": {
+              "type": "OBJECT",
+              "properties": {
+                "source_text": {
+                  "type": "STRING",
+                  "description": "The quote or reference."
+                },
+                "source_type": {
+                  "type": "STRING",
+                  "enum": [
+                    "student_answer",
+                    "marking_schema"
+                  ],
+                  "description": "Where the citation comes from."
+                }
+              },
+              "required": [
+                "source_text",
+                "source_type"
+              ]
+            }
+          }
+        },
+        "required": [
+          "question_id",
+          "marks_awarded",
+          "reasoning"
+        ]
+      }
+    }
+  },
+  "required": [
+    "total_marks",
+    "total_available_marks",
+    "question_breakdown"
+  ]
+}
