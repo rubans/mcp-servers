@@ -13,7 +13,7 @@ sys.path.insert(0, SERVER_DIR)
 
 # Import the module tools
 # Note: This requires the dependencies (fastmcp, google-genai, python-dotenv) to be installed.
-from gemini_text_gen import gemini_generate_text, gemini_grade_exam
+from gemini_text_gen import mcp.servers.gemini_generate_text, gemini_grade_exam
 
 class TestGeminiTextGen(unittest.TestCase):
     def setUp(self):

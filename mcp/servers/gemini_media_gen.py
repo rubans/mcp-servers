@@ -54,16 +54,16 @@ def print_environment_variables():
 
 from dotenv import load_dotenv
 # ---------- Load environment variables ----------
-# Load environment variables.
-# You can specify a custom path for the .env file with the DOTENV_PATH environment variable.
-# If DOTENV_PATH is not set, it defaults to looking for a .env file in the script's directory.
+# First load local .env which might contain DOTENV_PATH
+load_dotenv()
+
 dotenv_path_from_env = os.environ.get("DOTENV_PATH")
-if dotenv_path_from_env and os.path.exists(dotenv_path_from_env):
-    log.info(f"--- Loading .env file from: {dotenv_path_from_env} ---")
-    load_dotenv(dotenv_path=dotenv_path_from_env)
-else:    
-    # This line reads the .env file and loads the variables into the environment
-    load_dotenv()
+if dotenv_path_from_env:
+    # Expand ~ if present
+    dotenv_path_from_env = os.path.expanduser(dotenv_path_from_env)
+    if os.path.exists(dotenv_path_from_env):
+        log.info(f"--- Loading .env file from redirect: {dotenv_path_from_env} ---")
+        load_dotenv(dotenv_path=dotenv_path_from_env, override=True)
 print_environment_variables()
 
 # ---------- MCP server ----------

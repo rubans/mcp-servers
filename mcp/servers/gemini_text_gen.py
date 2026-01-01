@@ -39,12 +39,16 @@ log = logging.getLogger("gemini_text_gen")
 log.info("--- Log level set to %s ---", log_level_name)
 
 # ---------- Load environment variables ----------
+# First load local .env which might contain DOTENV_PATH
+load_dotenv()
+
 dotenv_path_from_env = os.environ.get("DOTENV_PATH")
-if dotenv_path_from_env and os.path.exists(dotenv_path_from_env):
-    log.info(f"--- Loading .env file from: {dotenv_path_from_env} ---")
-    load_dotenv(dotenv_path=dotenv_path_from_env)
-else:    
-    load_dotenv()
+if dotenv_path_from_env:
+    # Expand ~ if present
+    dotenv_path_from_env = os.path.expanduser(dotenv_path_from_env)
+    if os.path.exists(dotenv_path_from_env):
+        log.info(f"--- Loading .env file from redirect: {dotenv_path_from_env} ---")
+        load_dotenv(dotenv_path=dotenv_path_from_env, override=True)
 
 # ---------- MCP server ----------
 mcp = FastMCP("Gemini Text MCP")

@@ -30,8 +30,9 @@ async def test_gemini_grade_exam(http_server: str):
     
     # Define paths to the specific files
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    exam_paper_path = os.path.join(base_dir, "History_June_2024_Paper1", "Exam.pdf")
-    rubric_path = os.path.join(base_dir, "History_June_2024_Paper1", "Schema.pdf")
+    exam_parent_path = "History_June_2023_Paper3"
+    exam_paper_path = os.path.join(base_dir, exam_parent_path, "Exam.pdf")
+    rubric_path = os.path.join(base_dir, exam_parent_path, "Schema.pdf")
 
     # Verify files exist before running the test
     assert os.path.exists(exam_paper_path), f"Exam paper not found at {exam_paper_path}"
@@ -76,7 +77,7 @@ async def test_gemini_grade_exam(http_server: str):
         
         # Save to file
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = os.path.join(base_dir, "History_June_2024_Paper1", f"grading_report_{timestamp}.md")
+        output_file = os.path.join(base_dir, exam_parent_path, f"grading_report_{timestamp}.md")
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(md_report)
             
