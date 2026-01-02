@@ -16,7 +16,7 @@ import logging
 import mimetypes
 from pathlib import Path
 from typing import Dict, Any
-from fastmcp import FastMCP
+from fastmcp import FastMCP, Context
 #from mcp.server.fastmcp import FastMCP
 from fastmcp.exceptions import ToolError
 from google import genai
@@ -94,6 +94,7 @@ async def nanobanana_generate(
     out_dir: str = ".",
     model: str = "gemini-2.5-flash-image", # Your custom model
     n: int = 1,
+    ctx: Context = None,
 ) -> Dict[str, Any]:
     """
     Generate image(s) from a text prompt, optionally guided by input image(s),
@@ -131,6 +132,10 @@ async def nanobanana_generate(
     saved: list[str] = []
     texts: list[str] = []
     try:
+        if ctx:
+            await ctx.info(f"Starting image generation with model {model}...")
+            await ctx.report_progress(0, n)
+            
         stream = client.models.generate_content_stream(model=model, contents=contents, config=config)
         for i, chunk in enumerate(stream):
             if not getattr(chunk, "candidates", None): continue
@@ -145,7 +150,12 @@ async def nanobanana_generate(
                 with open(fpath, "wb") as f: f.write(inline.data)
                 saved.append(str(fpath))
                 log.info("NanoBanana (Vertex AI) saved: %s", fpath)
-                if n > 0 and len(saved) >= n: break
+                if n > 0 and len(saved) >= n:
+                    if ctx:
+                        await ctx.report_progress(len(saved), n)
+                    break
+                if ctx:
+                    await ctx.report_progress(len(saved), n)
     except Exception as e:
         log.error("Vertex AI generation failed: %s", e, exc_info=True)
         raise ToolError(f"Vertex AI generation failed: {e}")
@@ -166,6 +176,7 @@ async def veo_generate_video(
     model: str = "veo-3.1-fast-generate-preview", # Your custom model
     poll_seconds: int = 10,
     max_wait_seconds: int = 900,
+    ctx: Context = None,
 ) -> Dict[str, Any]:
     """
     Generate video(s) from a text prompt, optionally guided by input image(s),
@@ -198,8 +209,14 @@ async def veo_generate_video(
             raise ToolError(f"Failed to read input image '{image_path}': {e}")
 
     try:
+        if ctx:
+            await ctx.info(f"Submitting Veo generation request (model: {model})...")
+            
         op = client.models.generate_videos(model=model, prompt=prompt, image=image_obj)
         log.info(f"Started Veo generation (operation: {op.name}). Waiting for completion...")
+        
+        if ctx:
+            await ctx.info(f"Veo generation started. Operation ID: {op.name}")
     except Exception as e:
         raise ToolError(f"Failed to start Veo generation: {e}")
 
@@ -207,6 +224,12 @@ async def veo_generate_video(
     while not op.done:
         if waited >= max_wait_seconds:
             raise ToolError(f"Timeout waiting for Veo generation after {max_wait_seconds}s")
+        
+        if ctx:
+            # Veo generation doesn't give precise progress, so we report based on time or just an indeterminate "working"
+            await ctx.info(f"Waiting for video generation... ({waited}s elapsed)")
+            await ctx.report_progress(waited, max_wait_seconds)
+
         await asyncio.sleep(poll_seconds)
         waited += poll_seconds
         log.info(f"Polling Veo operation... (waited {waited}s)")
@@ -221,6 +244,10 @@ async def veo_generate_video(
     fpath = out_dir_p / fname
     video_file.save(str(fpath))
     log.info(f"Veo video saved to: {fpath}")
+
+    if ctx:
+        await ctx.report_progress(max_wait_seconds, max_wait_seconds)
+        await ctx.info(f"Video generation complete. Saved to {fpath}")
 
     return {"ok": True, "path": str(fpath), "model": model, "backend": "VertexAI"}
 

@@ -1,0 +1,7 @@
+{
+    "python.testing.pytestArgs": [
+        "--capture=no",
+        "tests"
+    ],
+    "python.testing.pytestEnabled": true
+}

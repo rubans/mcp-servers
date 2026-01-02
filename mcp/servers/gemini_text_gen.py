@@ -14,7 +14,7 @@ import logging
 import mimetypes
 import json
 from typing import Dict, Any
-from fastmcp import FastMCP
+from fastmcp import FastMCP, Context
 from fastmcp.exceptions import ToolError
 from google import genai
 from google.genai import types as gtypes
@@ -115,14 +115,21 @@ def _load_file_parts(input_paths: str | None) -> list[gtypes.Part]:
     if input_paths:
         for p in [p.strip() for p in input_paths.split(',') if p.strip()]:
             try:
-                with open(p, "rb") as f:
-                    data = f.read()
+                # Determine MIME type
                 mt, _ = mimetypes.guess_type(p)
                 if not mt:
                     mt = "application/pdf" if p.lower().endswith(".pdf") else "application/octet-stream"
-                parts.append(gtypes.Part.from_bytes(data=data, mime_type=mt))
+
+                if p.startswith("gs://"):
+                    # For GCS objects, use the URI directly
+                    parts.append(gtypes.Part.from_uri(file_uri=p, mime_type=mt))
+                else:
+                    # For local files, read the bytes
+                    with open(p, "rb") as f:
+                        data = f.read()
+                    parts.append(gtypes.Part.from_bytes(data=data, mime_type=mt))
             except Exception as e:
-                raise ToolError(f"Failed to read input file '{p}': {e}")
+                raise ToolError(f"Failed to load input file '{p}': {e}")
     return parts
 
 @mcp.tool()
@@ -135,6 +142,7 @@ async def gemini_generate_text(
     max_output_tokens: int | None = None,
     response_mime_type: str | None = None,
     response_schema: str | None = None,
+    ctx: Context = None,
 ) -> str:
     """
     Generate text from a prompt using a Gemini model.
@@ -171,17 +179,28 @@ async def gemini_generate_text(
 
     config = gtypes.GenerateContentConfig(**config_args) if config_args else None
 
+    if ctx:
+        await ctx.info(f"Starting Gemini text generation with model {model}...")
+
     parts = [gtypes.Part.from_text(text=prompt)]
     parts.extend(_load_file_parts(input_paths))
     contents = [gtypes.Content(role="user", parts=parts)]
 
     try:
         log.info(f"Generating text with model {model}...")
+        if ctx:
+            await ctx.report_progress(1, 2)
+            
         response = client.models.generate_content(
             model=model,
             contents=contents,
             config=config
         )
+        
+        if ctx:
+            await ctx.report_progress(2, 2)
+            await ctx.info("Text generation complete.")
+            
         return response.text
     except Exception as e:
         log.error(f"Gemini text generation failed: {e}", exc_info=True)
@@ -192,6 +211,7 @@ async def gemini_grade_exam(
     exam_paper_path: str,
     rubric_path: str,
     model: str = "gemini-3-flash-preview",
+    ctx: Context = None,
 ) -> str:
     """
     Grade an exam paper (PDF) against a marking rubric (PDF), returning a structured JSON report.
@@ -219,7 +239,23 @@ async def gemini_grade_exam(
     
     try:
         log.info(f"Grading exam with model {model}...")
+        if ctx:
+            await ctx.info(f"Preparing grading request with model {model}...")
+            await ctx.report_progress(1, 3)
+
         response = client.models.generate_content(model=model, contents=[gtypes.Content(role="user", parts=parts)], config=config)
+        
+        if ctx:
+            await ctx.info("Received grading response.")
+            await ctx.report_progress(2, 3)
+            
+        # Optional: could add some parsing logic here if we wanted to stream back partial results
+        # but for now we follow the simple progress pattern.
+        
+        if ctx:
+            await ctx.report_progress(3, 3)
+            await ctx.info("Grading complete.")
+            
         return response.text
     except Exception as e:
         log.error(f"Gemini exam grading failed: {e}", exc_info=True)

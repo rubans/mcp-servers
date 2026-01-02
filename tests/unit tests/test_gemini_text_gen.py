@@ -8,12 +8,12 @@ from unittest.mock import patch, MagicMock, mock_open
 # Add the server directory to sys.path so we can import the module
 # Current file: c:\Code\mcp-servers\unit tests\test_gemini_text_gen.py
 # Target file: c:\Code\mcp-servers\mcp\servers\gemini_text_gen.py
-SERVER_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../mcp/servers'))
+SERVER_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../mcp/servers'))
 sys.path.insert(0, SERVER_DIR)
 
 # Import the module tools
 # Note: This requires the dependencies (fastmcp, google-genai, python-dotenv) to be installed.
-from gemini_text_gen import mcp.servers.gemini_generate_text, gemini_grade_exam
+from gemini_text_gen import gemini_generate_text, gemini_grade_exam
 
 class TestGeminiTextGen(unittest.TestCase):
     def setUp(self):
@@ -30,7 +30,7 @@ class TestGeminiTextGen(unittest.TestCase):
             
             # Mock environment variables to ensure _get_client works
             with patch.dict(os.environ, {"GOOGLE_API_KEY": "fake-key"}):
-                result = asyncio.run(gemini_generate_text(prompt="Hello world"))
+                result = asyncio.run(gemini_generate_text.fn(prompt="Hello world"))
             
             self.assertEqual(result, "Mocked Gemini Response")
             self.mock_client_instance.models.generate_content.assert_called_once()
@@ -77,7 +77,7 @@ class TestGeminiTextGen(unittest.TestCase):
             MockClient.return_value = self.mock_client_instance
             
             with patch.dict(os.environ, {"GOOGLE_API_KEY": "fake-key"}):
-                result = asyncio.run(gemini_grade_exam(
+                result = asyncio.run(gemini_grade_exam.fn(
                     exam_paper_path="path/to/exam.pdf",
                     rubric_path="path/to/rubric.pdf"
                 ))
@@ -109,6 +109,33 @@ class TestGeminiTextGen(unittest.TestCase):
             self.assertEqual(parts[1].inline_data.data, rubric_content)
             self.assertIn("--- EXAM SUBMISSION ---", parts[2].text)
             self.assertEqual(parts[3].inline_data.data, exam_content)
+
+    def test_load_file_parts_gcs_support(self):
+        """Test that _load_file_parts handles gs:// URIs correctly."""
+        # We need to import the internal function for testing
+        from gemini_text_gen import _load_file_parts
+        
+        with patch('gemini_text_gen.gtypes.Part.from_uri') as mock_from_uri, \
+             patch('gemini_text_gen.gtypes.Part.from_bytes') as mock_from_bytes, \
+             patch('builtins.open', mock_open(read_data=b"local data")):
+            
+            # Case 1: Only GCS URI
+            _load_file_parts("gs://bucket/file.pdf")
+            mock_from_uri.assert_called_once_with(file_uri="gs://bucket/file.pdf", mime_type="application/pdf")
+            mock_from_bytes.assert_not_called()
+            
+            mock_from_uri.reset_mock()
+            mock_from_bytes.reset_mock()
+            
+            # Case 2: Mixed GCS and local
+            _load_file_parts("gs://bucket/file.pdf, local_file.txt")
+            self.assertEqual(mock_from_uri.call_count, 1)
+            self.assertEqual(mock_from_bytes.call_count, 1)
+            
+            mock_from_uri.assert_called_with(file_uri="gs://bucket/file.pdf", mime_type="application/pdf")
+            # For local_file.txt, mimetypes might return text/plain or None
+            # Let's just check it was called.
+            mock_from_bytes.assert_called_once()
 
 if __name__ == "__main__":
     unittest.main()

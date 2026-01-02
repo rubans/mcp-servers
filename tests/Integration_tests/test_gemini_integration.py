@@ -18,11 +18,19 @@ sys.path.insert(0, os.path.join(repo_root, "mcp", "servers"))
 import gemini_text_gen
 server = gemini_text_gen.mcp
 
+import asyncio
+import logging
+from contextlib import suppress
+
 @pytest_asyncio.fixture
 async def http_server():
     """Start server in-process for testing."""
     async with run_server_async(server) as url:
-        yield url
+        try:
+            yield url
+        finally:
+            # Silence uvicorn error logging during shutdown to avoid CancelledError noise
+            logging.getLogger("uvicorn.error").setLevel(logging.CRITICAL)
 
 @pytest.mark.asyncio
 async def test_gemini_grade_exam(http_server: str):
@@ -47,12 +55,17 @@ async def test_gemini_grade_exam(http_server: str):
 
         # Call the grading tool
         print(f"Calling gemini_grade_exam with:\nExam: {exam_paper_path}\nRubric: {rubric_path}")
+        
+        async def handle_progress(progress, total, message=None):
+            print(f" [SSE Event] Progress: {progress}/{total} - {message or ''}")
+
         result = await client.call_tool(
             "gemini_grade_exam", 
             arguments={
                 "exam_paper_path": exam_paper_path,
                 "rubric_path": rubric_path
-            }
+            },
+            progress_handler=handle_progress
         )
         
         # Verify response

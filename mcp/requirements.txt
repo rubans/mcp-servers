@@ -1,7 +1,9 @@
 mcp
 fastmcp
-opencv-python-headless
-pillow
-numpy
 google-genai
+python-dotenv
+
+# Tests
+pytest
+pytest-asyncio
 pytest-cov

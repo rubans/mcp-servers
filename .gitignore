@@ -25,8 +25,5 @@ cover/
 # Environments
 .env*
 
-# Editors
-.vscode/
-
 # Custom for this project
 test_output.txt
