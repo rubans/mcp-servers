@@ -18,6 +18,7 @@ from fastmcp import FastMCP, Context
 from fastmcp.exceptions import ToolError
 from google import genai
 from google.genai import types as gtypes
+from fastmcp.utilities.logging import configure_logging, get_logger
 from dotenv import load_dotenv
 
 # ---------- Logging ----------
@@ -25,18 +26,13 @@ from dotenv import load_dotenv
 log_level_name = os.environ.get("LOG_LEVEL", "INFO").upper()
 if log_level_name not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
     log_level_name = "INFO"
+configure_logging(log_level_name)
+logger = get_logger(__name__)
 
-handlers = [logging.StreamHandler(sys.stderr)]
 log_file = os.environ.get("LOG_FILE", "gemini_text_gen.log")
-handlers.append(logging.FileHandler(log_file))
-
-logging.basicConfig(
-    level=getattr(logging, log_level_name),
-    format="%(asctime)s | %(name)s | %(levelname)s | %(message)s",
-    handlers=handlers
-)
-log = logging.getLogger("gemini_text_gen")
-log.info("--- Log level set to %s ---", log_level_name)
+file_handler = logging.FileHandler(log_file)
+file_handler.setFormatter(logging.Formatter("%(asctime)s | %(name)s | %(levelname)s | %(message)s"))
+logger.addHandler(file_handler)
 
 # ---------- Load environment variables ----------
 # First load local .env which might contain DOTENV_PATH
@@ -47,12 +43,20 @@ if dotenv_path_from_env:
     # Expand ~ if present
     dotenv_path_from_env = os.path.expanduser(dotenv_path_from_env)
     if os.path.exists(dotenv_path_from_env):
-        log.info(f"--- Loading .env file from redirect: {dotenv_path_from_env} ---")
+        logger.info(f"--- Loading .env file from redirect: {dotenv_path_from_env} ---")
         load_dotenv(dotenv_path=dotenv_path_from_env, override=True)
+
+# Check and log configuration at startup
+if os.environ.get("GOOGLE_API_KEY"):
+    logger.info("Startup: Configured for Google AI Studio (GOOGLE_API_KEY detected).")
+elif os.environ.get("VERTEXAI_PROJECT") and os.environ.get("VERTEXAI_LOCATION"):
+    logger.info(f"Startup: Configured for Vertex AI (Project: {os.environ.get('VERTEXAI_PROJECT')}, Location: {os.environ.get('VERTEXAI_LOCATION')}).")
+else:
+    logger.warning("Startup: No valid configuration found for Google AI Studio or Vertex AI.")
 
 # ---------- MCP server ----------
 mcp = FastMCP("Gemini Text MCP")
-log.info("start gemini text mcp server...")
+logger.info("start gemini text mcp server...")
 
 def _get_client() -> genai.Client:
     """
@@ -63,11 +67,13 @@ def _get_client() -> genai.Client:
     """
     api_key = os.environ.get("GOOGLE_API_KEY")
     if api_key:
+        logger.info("Using Google AI Studio environment (GOOGLE_API_KEY detected).")
         return genai.Client(api_key=api_key)
 
     project = os.environ.get("VERTEXAI_PROJECT")
     location = os.environ.get("VERTEXAI_LOCATION")
     if project and location:
+        logger.info(f"Using Vertex AI environment (Project: {project}, Location: {location}).")
         return genai.Client(vertexai=True, project=project, location=location)
 
     raise ToolError("Missing configuration. Please set GOOGLE_API_KEY for AI Studio, or VERTEXAI_PROJECT and VERTEXAI_LOCATION for Vertex AI.")
@@ -187,7 +193,7 @@ async def gemini_generate_text(
     contents = [gtypes.Content(role="user", parts=parts)]
 
     try:
-        log.info(f"Generating text with model {model}...")
+        logger.info(f"Generating text with model {model}...")
         if ctx:
             await ctx.report_progress(1, 2)
             
@@ -203,7 +209,7 @@ async def gemini_generate_text(
             
         return response.text
     except Exception as e:
-        log.error(f"Gemini text generation failed: {e}", exc_info=True)
+        logger.error(f"Gemini text generation failed: {e}", exc_info=True)
         raise ToolError(f"Gemini text generation failed: {e}")
 
 @mcp.tool()
@@ -238,7 +244,7 @@ async def gemini_grade_exam(
     parts.extend(_load_file_parts(exam_paper_path))
     
     try:
-        log.info(f"Grading exam with model {model}...")
+        logger.info(f"Grading exam with model {model}...")
         if ctx:
             await ctx.info(f"Preparing grading request with model {model}...")
             await ctx.report_progress(1, 3)
@@ -258,7 +264,7 @@ async def gemini_grade_exam(
             
         return response.text
     except Exception as e:
-        log.error(f"Gemini exam grading failed: {e}", exc_info=True)
+        logger.error(f"Gemini exam grading failed: {e}", exc_info=True)
         raise ToolError(f"Gemini exam grading failed: {e}")
 
 if __name__ == "__main__":

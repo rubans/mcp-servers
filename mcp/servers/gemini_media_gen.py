@@ -12,7 +12,6 @@ Tools:
 import os
 import sys
 import time, asyncio
-import logging
 import mimetypes
 from pathlib import Path
 from typing import Dict, Any
@@ -21,6 +20,7 @@ from fastmcp import FastMCP, Context
 from fastmcp.exceptions import ToolError
 from google import genai
 from google.genai import types as gtypes
+from fastmcp.utilities.logging import configure_logging, get_logger
 
 # ---------- Logging ----------
 # Set log level from LOG_LEVEL env var, defaulting to INFO
@@ -28,29 +28,27 @@ log_level_name = os.environ.get("LOG_LEVEL", "INFO").upper()
 if log_level_name not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
     log_level_name = "INFO"
 
-handlers = [logging.StreamHandler(sys.stderr)]
-log_file = os.environ.get("LOG_FILE", "gemini_media_gen.log")
-handlers.append(logging.FileHandler(log_file))
+configure_logging(log_level_name)
+logger = get_logger(__name__)
 
-logging.basicConfig(
-    level=getattr(logging, log_level_name),
-    format="%(asctime)s | %(name)s | %(levelname)s | %(message)s",
-    handlers=handlers
-)
-log = logging.getLogger("gemini_media_gen")
-log.info("--- Log level set to %s ---", log_level_name)
-log.info("--- Logging to file: %s ---", log_file)
+log_file = os.environ.get("LOG_FILE", "gemini_media_gen.log")
+file_handler = logging.FileHandler(log_file)
+file_handler.setFormatter(logging.Formatter("%(asctime)s | %(name)s | %(levelname)s | %(message)s"))
+logger.addHandler(file_handler)
+
+logger.info("--- Log level set to %s ---", log_level_name)
+logger.info("--- Logging to file: %s ---", log_file)
 
 def print_environment_variables():
     """Logs relevant GOOGLE_* environment variables for debugging."""
-    log.debug("--- Google Environment Variables ---")
+    logger.debug("--- Google Environment Variables ---")
     for var, value in os.environ.items():
         if var.startswith("GOOGLE_"):
             if "API_KEY" in var and value:
-                log.debug(f"{var}: {'*' * 8}")
+                logger.debug(f"{var}: {'*' * 8}")
             else:
-                log.debug(f"{var}: {value}")
-    log.debug("----------------------------------\n")
+                logger.debug(f"{var}: {value}")
+    logger.debug("----------------------------------\n")
 
 from dotenv import load_dotenv
 # ---------- Load environment variables ----------
@@ -62,13 +60,13 @@ if dotenv_path_from_env:
     # Expand ~ if present
     dotenv_path_from_env = os.path.expanduser(dotenv_path_from_env)
     if os.path.exists(dotenv_path_from_env):
-        log.info(f"--- Loading .env file from redirect: {dotenv_path_from_env} ---")
+        logger.info(f"--- Loading .env file from redirect: {dotenv_path_from_env} ---")
         load_dotenv(dotenv_path=dotenv_path_from_env, override=True)
 print_environment_variables()
 
 # ---------- MCP server ----------
 mcp = FastMCP("Gemini Media MCP")
-log.info("start gemini media mcp server...")
+logger.info("start gemini media mcp server...")
 
 def _initialize_vertex_client_and_paths(out_dir: str) -> tuple[genai.Client, Path]:
     """
@@ -149,7 +147,7 @@ async def nanobanana_generate(
                 fpath = out_dir_p / fname
                 with open(fpath, "wb") as f: f.write(inline.data)
                 saved.append(str(fpath))
-                log.info("NanoBanana (Vertex AI) saved: %s", fpath)
+                logger.info("NanoBanana (Vertex AI) saved: %s", fpath)
                 if n > 0 and len(saved) >= n:
                     if ctx:
                         await ctx.report_progress(len(saved), n)
@@ -157,7 +155,7 @@ async def nanobanana_generate(
                 if ctx:
                     await ctx.report_progress(len(saved), n)
     except Exception as e:
-        log.error("Vertex AI generation failed: %s", e, exc_info=True)
+        logger.error("Vertex AI generation failed: %s", e, exc_info=True)
         raise ToolError(f"Vertex AI generation failed: {e}")
 
     return {
@@ -198,7 +196,7 @@ async def veo_generate_video(
         # Veo on Vertex currently supports one input image
         path_list = [p.strip() for p in input_paths.split(",") if p.strip()]
         if len(path_list) > 1:
-            log.warning(f"Veo only supports one input image, using the first one: {path_list[0]}")
+            logger.warning(f"Veo only supports one input image, using the first one: {path_list[0]}")
         image_path = path_list[0]
         try:
             with open(image_path, "rb") as f:
@@ -213,7 +211,7 @@ async def veo_generate_video(
             await ctx.info(f"Submitting Veo generation request (model: {model})...")
             
         op = client.models.generate_videos(model=model, prompt=prompt, image=image_obj)
-        log.info(f"Started Veo generation (operation: {op.name}). Waiting for completion...")
+        logger.info(f"Started Veo generation (operation: {op.name}). Waiting for completion...")
         
         if ctx:
             await ctx.info(f"Veo generation started. Operation ID: {op.name}")
@@ -232,7 +230,7 @@ async def veo_generate_video(
 
         await asyncio.sleep(poll_seconds)
         waited += poll_seconds
-        log.info(f"Polling Veo operation... (waited {waited}s)")
+        logger.info(f"Polling Veo operation... (waited {waited}s)")
         op = client.operations.get(op)
 
     if not op.result or not op.result.generated_videos:
@@ -243,7 +241,7 @@ async def veo_generate_video(
     fname = f"veo_{time.strftime('%Y%m%d_%H%M%S')}_{int((time.time() % 1) * 1000):03d}.mp4"
     fpath = out_dir_p / fname
     video_file.save(str(fpath))
-    log.info(f"Veo video saved to: {fpath}")
+    logger.info(f"Veo video saved to: {fpath}")
 
     if ctx:
         await ctx.report_progress(max_wait_seconds, max_wait_seconds)
