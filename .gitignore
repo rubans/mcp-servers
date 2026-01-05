@@ -22,8 +22,8 @@ cover/
 # Logs
 *.log
 
-# # Environments
-# .env*
+# Environments
+.env*
 
 # Custom for this project
 test_output.txt
