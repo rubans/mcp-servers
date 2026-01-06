@@ -9,6 +9,10 @@
       "type": "NUMBER",
       "description": "The total possible marks available for the entire paper."
     },
+    "paper_name": {
+      "type": "STRING",
+      "description": "A short, descriptive name for the exam paper derived from its content, e.g. 'AQA A-Level History 2023 - Component 2N'"
+    },
     "summary_comments": {
       "type": "STRING",
       "description": "Overall feedback on the paper."
@@ -71,6 +75,7 @@
   "required": [
     "total_marks",
     "total_available_marks",
+    "paper_name",
     "question_breakdown"
   ]
 }
