@@ -116,6 +116,8 @@ def format_grading_report(data: dict) -> str:
             
     return md
 
+import requests
+
 def _load_file_parts(input_paths: str | None) -> list[gtypes.Part]:
     parts = []
     if input_paths:
@@ -129,6 +131,12 @@ def _load_file_parts(input_paths: str | None) -> list[gtypes.Part]:
                 if p.startswith("gs://"):
                     # For GCS objects, use the URI directly
                     parts.append(gtypes.Part.from_uri(file_uri=p, mime_type=mt))
+                elif p.startswith("http://") or p.startswith("https://"):
+                    # For HTTP(S) URLs, download the content
+                    logger.info(f"Downloading file from URL: {p}")
+                    response = requests.get(p)
+                    response.raise_for_status()
+                    parts.append(gtypes.Part.from_bytes(data=response.content, mime_type=mt))
                 else:
                     # For local files, read the bytes
                     with open(p, "rb") as f:
