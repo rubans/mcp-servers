@@ -29,9 +29,14 @@ if log_level_name not in ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]:
 configure_logging(log_level_name)
 logger = get_logger(__name__)
 
+# Force timestamp on console/stream handlers configured by fastmcp
+formatter = logging.Formatter("%(asctime)s | %(name)s | %(levelname)s | %(message)s")
+for handler in logging.getLogger().handlers:
+    handler.setFormatter(formatter)
+
 log_file = os.environ.get("LOG_FILE", "gemini_text_gen.log")
 file_handler = logging.FileHandler(log_file)
-file_handler.setFormatter(logging.Formatter("%(asctime)s | %(name)s | %(levelname)s | %(message)s"))
+file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
 # ---------- Load environment variables ----------
