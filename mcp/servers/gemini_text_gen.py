@@ -141,6 +141,13 @@ def _load_file_parts(input_paths: str | None) -> list[gtypes.Part]:
                     logger.info(f"Downloading file from URL: {p}")
                     response = requests.get(p)
                     response.raise_for_status()
+                    
+                    # Use Content-Type from header if available, otherwise fall back to guessed type
+                    content_type = response.headers.get("Content-Type")
+                    if content_type:
+                        # Strip parameters (e.g. "application/pdf; charset=utf-8" -> "application/pdf")
+                        mt = content_type.split(";")[0].strip()
+                    
                     parts.append(gtypes.Part.from_bytes(data=response.content, mime_type=mt))
                 else:
                     # For local files, read the bytes
