@@ -45,6 +45,36 @@ class TestGeminiTextGen(unittest.TestCase):
             content = kwargs['contents'][0]
             self.assertEqual(content.parts[0].text, "Hello world")
 
+    def test_gemini_generate_text_json_with_usage(self):
+        """Test text generation with JSON response and usage metadata injection."""
+        # Mock usage metadata on the response
+        mock_usage = MagicMock()
+        mock_usage.prompt_token_count = 10
+        mock_usage.candidates_token_count = 20
+        mock_usage.total_token_count = 30
+        self.mock_response.usage_metadata = mock_usage
+        
+        # Valid JSON response from model
+        self.mock_response.text = json.dumps({"key": "value"})
+
+        with patch('gemini_text_gen.genai.Client') as MockClient, \
+             patch('gemini_text_gen.litellm.cost_per_token', return_value=(0.00005, 0.0)):
+            
+            MockClient.return_value = self.mock_client_instance
+            
+            with patch.dict(os.environ, {"GOOGLE_API_KEY": "fake-key"}):
+                result = asyncio.run(gemini_generate_text.fn(
+                    prompt="Generate JSON", 
+                    response_mime_type="application/json"
+                ))
+            
+            # Verify result
+            result_data = json.loads(result)
+            self.assertEqual(result_data["key"], "value")
+            self.assertIn("llm_usage_metadata", result_data)
+            self.assertEqual(result_data["llm_usage_metadata"]["total_token_count"], 30)
+            self.assertEqual(result_data["llm_usage_metadata"]["estimated_cost_usd"], 0.00005)
+
     def test_gemini_grade_exam_success(self):
         """Test exam grading with mocked file inputs and schema."""
         
@@ -56,6 +86,16 @@ class TestGeminiTextGen(unittest.TestCase):
         
         rubric_content = b"Fake Rubric PDF Content"
         exam_content = b"Fake Exam PDF Content"
+
+        # Mock usage metadata on the response
+        mock_usage = MagicMock()
+        mock_usage.prompt_token_count = 100
+        mock_usage.candidates_token_count = 50
+        mock_usage.total_token_count = 150
+        self.mock_response.usage_metadata = mock_usage
+        
+        # Set response text to valid JSON so injection logic triggers
+        self.mock_response.text = json.dumps({"total_marks": 10, "summary_comments": "Good job."})
 
         # Side effect for open() to handle different files
         def open_side_effect(file, mode='r', *args, **kwargs):
@@ -72,7 +112,8 @@ class TestGeminiTextGen(unittest.TestCase):
             raise FileNotFoundError(f"File {file} not found in mock")
 
         with patch('gemini_text_gen.genai.Client') as MockClient, \
-             patch('builtins.open', side_effect=open_side_effect):
+             patch('builtins.open', side_effect=open_side_effect), \
+             patch('gemini_text_gen.litellm.cost_per_token', return_value=(0.000123, 0.000001)): # Mock cost calculation
             
             MockClient.return_value = self.mock_client_instance
             
@@ -82,7 +123,11 @@ class TestGeminiTextGen(unittest.TestCase):
                     rubric_path="path/to/rubric.pdf"
                 ))
 
-            self.assertEqual(result, "Mocked Gemini Response")
+            # Result should be a JSON string with usage_metadata injected
+            result_data = json.loads(result)
+            self.assertEqual(result_data["total_marks"], 10)
+            self.assertIn("llm_usage_metadata", result_data)
+            self.assertEqual(result_data["llm_usage_metadata"]["estimated_cost_usd"], 0.000123)
             
             # Verify the client was called
             call_args = self.mock_client_instance.models.generate_content.call_args

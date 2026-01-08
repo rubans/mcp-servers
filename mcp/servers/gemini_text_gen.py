@@ -59,6 +59,24 @@ elif os.environ.get("VERTEXAI_PROJECT") and os.environ.get("VERTEXAI_LOCATION"):
 else:
     logger.warning("Startup: No valid configuration found for Google AI Studio or Vertex AI.")
 
+# ---------- Pricing & Usage Helpers ----------
+import litellm
+
+def calculate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
+    """
+    Calculate estimated cost in USD based on model and token counts using LiteLLM.
+    """
+    try:
+        # litellm.cost_per_token returns cost or raises error / returns 0 if unknown
+        cost, _ = litellm.cost_per_token(model=model, prompt_tokens=input_tokens, completion_tokens=output_tokens)
+        return cost
+    except Exception as e:
+        logger.warning(f"LiteLLM cost calculation failed for {model}: {e}")
+        return 0.0
+
+
+
+
 # ---------- MCP server ----------
 mcp = FastMCP("Gemini Text MCP")
 logger.info("start gemini text mcp server...")
@@ -227,10 +245,81 @@ async def gemini_generate_text(
             await ctx.report_progress(2, 2)
             await ctx.info("Text generation complete.")
             
+        # Check if we should inject usage stats for JSON output
+        if response_mime_type == "application/json":
+            try:
+                # Attempt to parse the text as JSON
+                data = json.loads(response.text)
+                if isinstance(data, dict):
+                    # Extract usage
+                    usage_meta = response.usage_metadata
+                    prompt_tokens = usage_meta.prompt_token_count if usage_meta else 0
+                    candidates_tokens = usage_meta.candidates_token_count if usage_meta else 0
+                    total_tokens = usage_meta.total_token_count if usage_meta else 0
+                    
+                    cost = calculate_cost(model, prompt_tokens, candidates_tokens)
+                    
+                    data["llm_usage_metadata"] = {
+                        "prompt_token_count": prompt_tokens,
+                        "candidates_token_count": candidates_tokens,
+                        "total_token_count": total_tokens,
+                        "estimated_cost_usd": cost
+                    }
+                    return json.dumps(data)
+            except json.JSONDecodeError:
+                pass # Return original text if not valid JSON
+
         return response.text
     except Exception as e:
         logger.error(f"Gemini text generation failed: {e}", exc_info=True)
         raise ToolError(f"Gemini text generation failed: {e}")
+
+@mcp.tool()
+async def gemini_estimate_tokens(
+    prompt: str,
+    input_paths: str | None = None,
+    model: str = "gemini-3-flash-preview",
+    system_instruction: str | None = None,
+) -> str:
+    """
+    Estimate token count and cost for a given prompt and input files.
+    
+    Args:
+      prompt: The input text prompt.
+      input_paths: Optional comma-delimited string of file paths.
+      model: The model to use (default: gemini-3-flash-preview).
+      system_instruction: Optional system instruction.
+    """
+    client = _get_client()
+    
+    parts = [gtypes.Part.from_text(text=prompt)]
+    parts.extend(_load_file_parts(input_paths))
+    contents = [gtypes.Content(role="user", parts=parts)]
+    
+    try:
+        # Note: system_instruction might need to be passed differently or might not affect input token count significantly enough 
+        # for a rough estimate, but the API supports it in count_tokens config if needed.
+        # For simplicity, we just count the user content, which is the bulk. 
+        # Use more advanced count_tokens args if the library supports it.
+        
+        response = client.models.count_tokens(
+            model=model,
+            contents=contents
+        )
+        
+        total_tokens = response.total_tokens
+        cost = calculate_cost(model, total_tokens, 0) # Assumes 0 output for input cost estimate
+        
+        return json.dumps({
+            "total_tokens": total_tokens,
+            "estimated_cost_usd": cost,
+            "currency": "USD",
+            "note": "Cost is for input tokens only."
+        })
+    except Exception as e:
+        logger.error(f"Gemini token estimation failed: {e}", exc_info=True)
+        raise ToolError(f"Gemini token estimation failed: {e}")
+
 
 @mcp.tool()
 async def gemini_grade_exam(
@@ -282,7 +371,36 @@ async def gemini_grade_exam(
             await ctx.report_progress(3, 3)
             await ctx.info("Grading complete.")
             
-        return response.text
+        # Parse the output and inject usage stats
+        try:
+            # The response text should be JSON because we requested it
+            grading_report = json.loads(response.text)
+            
+            # Extract usage
+            usage_meta = response.usage_metadata
+            prompt_tokens = usage_meta.prompt_token_count if usage_meta else 0
+            candidates_tokens = usage_meta.candidates_token_count if usage_meta else 0
+            total_tokens = usage_meta.total_token_count if usage_meta else 0
+            
+            cost = calculate_cost(model, prompt_tokens, candidates_tokens)
+            
+            # Inject into the report
+            if isinstance(grading_report, dict):
+                grading_report["llm_usage_metadata"] = {
+                    "prompt_token_count": prompt_tokens,
+                    "candidates_token_count": candidates_tokens,
+                    "total_token_count": total_tokens,
+                    "estimated_cost_usd": cost
+                }
+                return json.dumps(grading_report)
+            else:
+                # If it's a list or something else, return original but maybe log a warning
+                return response.text
+                
+        except json.JSONDecodeError:
+            # If parsing fails, just return the text
+            return response.text
+
     except Exception as e:
         logger.error(f"Gemini exam grading failed: {e}", exc_info=True)
         raise ToolError(f"Gemini exam grading failed: {e}")

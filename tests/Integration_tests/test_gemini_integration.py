@@ -77,7 +77,11 @@ async def test_gemini_grade_exam(http_server: str):
         try:
             grading_report = json.loads(text_response)
             assert isinstance(grading_report, dict)
-            # Basic check for expected fields (assuming common structure, but at least it's valid JSON)
+            # Check for usage stats
+            assert "usage_metadata" in grading_report, "usage_metadata missing from grading report"
+            usage = grading_report["usage_metadata"]
+            assert "estimated_cost_usd" in usage, "estimated_cost_usd missing from usage_metadata"
+            print(f"Usage Stats: {usage}")
         except json.JSONDecodeError:
             pytest.fail(f"Response was not valid JSON: {text_response}")
 
