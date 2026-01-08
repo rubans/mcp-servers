@@ -2,7 +2,9 @@ import unittest
 import asyncio
 import os
 import sys
+import sys
 import json
+import types
 from unittest.mock import patch, MagicMock, mock_open
 
 # Add the server directory to sys.path so we can import the module
@@ -48,10 +50,12 @@ class TestGeminiTextGen(unittest.TestCase):
     def test_gemini_generate_text_json_with_usage(self):
         """Test text generation with JSON response and usage metadata injection."""
         # Mock usage metadata on the response
-        mock_usage = MagicMock()
-        mock_usage.prompt_token_count = 10
-        mock_usage.candidates_token_count = 20
-        mock_usage.total_token_count = 30
+        mock_usage = types.SimpleNamespace(
+            prompt_token_count=10,
+            candidates_token_count=20,
+            total_token_count=30,
+            reasoning_token_count=5 # Extra dynamic field
+        )
         self.mock_response.usage_metadata = mock_usage
         
         # Valid JSON response from model
@@ -73,6 +77,7 @@ class TestGeminiTextGen(unittest.TestCase):
             self.assertEqual(result_data["key"], "value")
             self.assertIn("llm_usage_metadata", result_data)
             self.assertEqual(result_data["llm_usage_metadata"]["total_token_count"], 30)
+            self.assertEqual(result_data["llm_usage_metadata"]["reasoning_token_count"], 5)
             self.assertEqual(result_data["llm_usage_metadata"]["estimated_cost_usd"], 0.00005)
 
     def test_gemini_grade_exam_success(self):
@@ -88,10 +93,11 @@ class TestGeminiTextGen(unittest.TestCase):
         exam_content = b"Fake Exam PDF Content"
 
         # Mock usage metadata on the response
-        mock_usage = MagicMock()
-        mock_usage.prompt_token_count = 100
-        mock_usage.candidates_token_count = 50
-        mock_usage.total_token_count = 150
+        mock_usage = types.SimpleNamespace(
+            prompt_token_count=100,
+            candidates_token_count=50,
+            total_token_count=150
+        )
         self.mock_response.usage_metadata = mock_usage
         
         # Set response text to valid JSON so injection logic triggers

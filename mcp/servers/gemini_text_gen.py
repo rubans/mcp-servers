@@ -62,6 +62,44 @@ else:
 # ---------- Pricing & Usage Helpers ----------
 import litellm
 
+def _extract_usage_dict(usage_meta: Any, model: str) -> Dict[str, Any]:
+    """Helper to extract all available token counts from usage metadata."""
+    if not usage_meta:
+        return {
+            "prompt_token_count": 0,
+            "candidates_token_count": 0,
+            "total_token_count": 0,
+            "estimated_cost_usd": 0.0
+        }
+    
+    data = {}
+    
+    # Dynamically extract all attributes ending in '_token_count'
+    # This covers standard fields plus 'cached_content_token_count', 'thought_token_count', etc.
+    for attr in dir(usage_meta):
+        if attr.endswith("_token_count") and not attr.startswith("_"):
+            try:
+                val = getattr(usage_meta, attr)
+                if isinstance(val, int):
+                    data[attr] = val
+            except Exception:
+                pass
+                
+    # Ensure vital fields exist (default to 0)
+    for key in ["prompt_token_count", "candidates_token_count", "total_token_count"]:
+        if key not in data:
+            data[key] = 0
+            
+    # Calculate Cost
+    data["estimated_cost_usd"] = calculate_cost(
+        model, 
+        data["prompt_token_count"], 
+        data["candidates_token_count"]
+    )
+    
+    return data
+
+
 def calculate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
     """
     Calculate estimated cost in USD based on model and token counts using LiteLLM.
@@ -253,18 +291,7 @@ async def gemini_generate_text(
                 if isinstance(data, dict):
                     # Extract usage
                     usage_meta = response.usage_metadata
-                    prompt_tokens = usage_meta.prompt_token_count if usage_meta else 0
-                    candidates_tokens = usage_meta.candidates_token_count if usage_meta else 0
-                    total_tokens = usage_meta.total_token_count if usage_meta else 0
-                    
-                    cost = calculate_cost(model, prompt_tokens, candidates_tokens)
-                    
-                    data["llm_usage_metadata"] = {
-                        "prompt_token_count": prompt_tokens,
-                        "candidates_token_count": candidates_tokens,
-                        "total_token_count": total_tokens,
-                        "estimated_cost_usd": cost
-                    }
+                    data["llm_usage_metadata"] = _extract_usage_dict(usage_meta, model)
                     return json.dumps(data)
             except json.JSONDecodeError:
                 pass # Return original text if not valid JSON
@@ -378,20 +405,11 @@ async def gemini_grade_exam(
             
             # Extract usage
             usage_meta = response.usage_metadata
-            prompt_tokens = usage_meta.prompt_token_count if usage_meta else 0
-            candidates_tokens = usage_meta.candidates_token_count if usage_meta else 0
-            total_tokens = usage_meta.total_token_count if usage_meta else 0
-            
-            cost = calculate_cost(model, prompt_tokens, candidates_tokens)
+            usage_dict = _extract_usage_dict(usage_meta, model)
             
             # Inject into the report
             if isinstance(grading_report, dict):
-                grading_report["llm_usage_metadata"] = {
-                    "prompt_token_count": prompt_tokens,
-                    "candidates_token_count": candidates_tokens,
-                    "total_token_count": total_tokens,
-                    "estimated_cost_usd": cost
-                }
+                grading_report["llm_usage_metadata"] = usage_dict
                 return json.dumps(grading_report)
             else:
                 # If it's a list or something else, return original but maybe log a warning
