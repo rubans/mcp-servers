@@ -1,6 +1,10 @@
 {
   "type": "OBJECT",
   "properties": {
+    "version": {
+      "type": "STRING",
+      "description": "The version of the schema used for this result (e.g. '1.0.0')."
+    },
     "total_marks": {
       "type": "NUMBER",
       "description": "The total marks awarded for the entire paper."
@@ -138,6 +142,7 @@
     }
   },
   "required": [
+    "version",
     "total_marks",
     "total_available_marks",
     "paper_name",

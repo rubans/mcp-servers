@@ -417,6 +417,7 @@ async def gemini_grade_exam(
             # Inject into the report
             if isinstance(grading_report, dict):
                 grading_report["llm_usage_metadata"] = usage_dict
+                grading_report["version"] = "1.0.0"
                 return json.dumps(grading_report)
             else:
                 # If it's a list or something else, return original but maybe log a warning
