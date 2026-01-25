@@ -61,6 +61,27 @@ else:
 
 # ---------- Pricing & Usage Helpers ----------
 import litellm
+import io
+import pypdf
+
+def _get_pdf_metadata(data: bytes, source_name: str) -> Dict[str, Any]:
+    """
+    Extracts page count and size from PDF bytes.
+    """
+    size_mb = len(data) / (1024 * 1024)
+    page_count = 0
+    
+    try:
+        f = io.BytesIO(data)
+        reader = pypdf.PdfReader(f)
+        page_count = len(reader.pages)
+    except Exception as e:
+        logger.warning(f"Failed to count pages for {source_name}: {e}")
+        
+    return {
+        "file_size_mb": round(size_mb, 2),
+        "page_count": page_count
+    }
 
 def _extract_usage_dict(usage_meta: Any, model: str) -> Dict[str, Any]:
     """Helper to extract all available token counts from usage metadata."""
@@ -381,10 +402,66 @@ async def gemini_grade_exam(
     
     client = _get_client()
     config = gtypes.GenerateContentConfig(response_mime_type="application/json", response_schema=schema, temperature=0.0)
+    
+    # Load files and extract metadata
     parts = [gtypes.Part.from_text(text=prompt + "\n\n--- MARKING RUBRIC ---")]
-    parts.extend(_load_file_parts(rubric_path))
+    
+    rubric_parts = _load_file_parts(rubric_path)
+    parts.extend(rubric_parts)
+    
     parts.append(gtypes.Part.from_text(text="\n\n--- EXAM SUBMISSION ---"))
-    parts.extend(_load_file_parts(exam_paper_path))
+    
+    exam_parts = _load_file_parts(exam_paper_path)
+    parts.extend(exam_parts)
+
+    # Helper to extract metadata async
+    import asyncio
+    import concurrent.futures
+    from google.cloud import storage as gcs
+    
+    loop = asyncio.get_running_loop()
+    
+    def _download_and_extract(part, name):
+        data = None
+        if part.inline_data:
+            data = part.inline_data.data
+        elif part.file_data and part.file_data.file_uri.startswith("gs://"):
+            try:
+                # Download from GCS
+                uri = part.file_data.file_uri
+                # Parse gs://bucket/blob
+                path_parts = uri.replace("gs://", "").split("/", 1)
+                bucket_name = path_parts[0]
+                blob_name = path_parts[1]
+                
+                storage_client = gcs.Client()
+                bucket = storage_client.bucket(bucket_name)
+                blob = bucket.blob(blob_name)
+                data = blob.download_as_bytes()
+            except Exception as e:
+                logger.warning(f"Failed to download GCS file {uri} for metadata: {e}")
+
+        if data:
+            return _get_pdf_metadata(data, name)
+        return {"page_count": 0, "file_size_mb": 0.0}
+    
+    async def extract_meta_async(parts_list, name):
+        if parts_list:
+             return await loop.run_in_executor(None, _download_and_extract, parts_list[0], name)
+        return {"page_count": 0, "file_size_mb": 0.0}
+
+    # Extract concurrently
+    rubric_meta, exam_meta = await asyncio.gather(
+        extract_meta_async(rubric_parts, "Rubric"),
+        extract_meta_async(exam_parts, "Exam")
+    )
+    
+    # Check Limits (example: 30 pages)
+    LIMIT = 30
+    if exam_meta["page_count"] > LIMIT:
+        msg = f"Exam exceeds basic plan page limit ({LIMIT} pages). Submitted: {exam_meta['page_count']} pages."
+        logger.error(msg)
+        raise ToolError(msg)
     
     try:
         logger.info(f"Grading exam with model {model}...")
@@ -418,6 +495,11 @@ async def gemini_grade_exam(
             if isinstance(grading_report, dict):
                 grading_report["llm_usage_metadata"] = usage_dict
                 grading_report["version"] = "1.0.0"
+                # Inject Doc Metadata
+                grading_report["doc_metadata"] = {
+                    "exam": exam_meta,
+                    "scheme": rubric_meta
+                }
                 return json.dumps(grading_report)
             else:
                 # If it's a list or something else, return original but maybe log a warning
