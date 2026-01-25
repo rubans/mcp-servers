@@ -370,7 +370,14 @@ async def gemini_grade_exam(
     except Exception as e:
         raise ToolError(f"Failed to load grading schema from {schema_path}: {e}")
 
-    prompt = "Please grade the following exam submission based on the provided marking rubric."
+    prompt_path = os.path.join(os.path.dirname(__file__), "exam_grading_prompt.txt")
+    try:
+        with open(prompt_path, "r", encoding="utf-8") as f:
+            prompt = f.read().strip()
+    except Exception as e:
+        # Fallback prompt if file read fails, or raise error. 
+        # Raising error is safer to ensure we don't silently use a bad prompt.
+        raise ToolError(f"Failed to load grading prompt from {prompt_path}: {e}")
     
     client = _get_client()
     config = gtypes.GenerateContentConfig(response_mime_type="application/json", response_schema=schema, temperature=0.0)

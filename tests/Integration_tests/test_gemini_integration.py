@@ -78,9 +78,9 @@ async def test_gemini_grade_exam(http_server: str):
             grading_report = json.loads(text_response)
             assert isinstance(grading_report, dict)
             # Check for usage stats
-            assert "usage_metadata" in grading_report, "usage_metadata missing from grading report"
-            usage = grading_report["usage_metadata"]
-            assert "estimated_cost_usd" in usage, "estimated_cost_usd missing from usage_metadata"
+            assert "llm_usage_metadata" in grading_report, "llm_usage_metadata missing from grading report"
+            usage = grading_report["llm_usage_metadata"]
+            assert "estimated_cost_usd" in usage, "estimated_cost_usd missing from llm_usage_metadata"
             print(f"Usage Stats: {usage}")
         except json.JSONDecodeError:
             pytest.fail(f"Response was not valid JSON: {text_response}")
@@ -94,10 +94,20 @@ async def test_gemini_grade_exam(http_server: str):
         
         # Save to file
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_file = os.path.join(base_dir, exam_parent_path, f"grading_report_{timestamp}.md")
-        with open(output_file, "w", encoding="utf-8") as f:
-            f.write(md_report)
+        
+        # Save JSON
+        json_output_file = os.path.join(base_dir, exam_parent_path, f"grading_report_{timestamp}.json")
+        with open(json_output_file, "w", encoding="utf-8") as f:
+            json.dump(grading_report, f, indent=2)
             
-        print(f"Grading report saved to: {output_file}")
-        assert os.path.exists(output_file)
+        print(f"Grading report JSON saved to: {json_output_file}")
+        assert os.path.exists(json_output_file)
+
+        # Save Markdown
+        md_output_file = os.path.join(base_dir, exam_parent_path, f"grading_report_{timestamp}.md")
+        with open(md_output_file, "w", encoding="utf-8") as f:
+            f.write(md_report)
+
+        print(f"Grading report Markdown saved to: {md_output_file}")
+        assert os.path.exists(md_output_file)
         assert len(md_report) > 0

@@ -11,7 +11,7 @@
     },
     "paper_name": {
       "type": "STRING",
-      "description": "A short, descriptive name for the exam paper derived from its content, e.g. 'AQA A-Level History 2023 - Component 2N'"
+      "description": "The name of the exam paper."
     },
     "summary_comments": {
       "type": "STRING",
@@ -24,7 +24,11 @@
         "properties": {
           "question_id": {
             "type": "STRING",
-            "description": "The question number or identifier."
+            "description": "The question number (e.g., '1', '2', '3(a)')."
+          },
+          "student_transcript": {
+            "type": "STRING",
+            "description": "Transcription of the student's handwritten answer."
           },
           "marks_awarded": {
             "type": "NUMBER",
@@ -36,30 +40,88 @@
           },
           "reasoning": {
             "type": "STRING",
-            "description": "Detailed explanation for the marks awarded."
+            "description": "Detailed explanation for the mark awarded."
+          },
+          "missed_mark_reasoning": {
+            "type": "STRING",
+            "description": "Explanation of why full marks were NOT awarded. State 'None' if full marks given."
+          },
+          "required_for_improvement": {
+            "type": "STRING",
+            "description": "Actionable advice to achieve higher marks."
           },
           "citations": {
             "type": "ARRAY",
-            "description": "Evidence from the paper or rubric supporting the mark.",
+            "description": "REQUIRED: Must include at least one 'student_answer' and one 'marking_scheme' citation.",
             "items": {
               "type": "OBJECT",
               "properties": {
-                "source_text": {
+                "id": {
                   "type": "STRING",
-                  "description": "The quote or reference."
+                  "description": "Unique ID (e.g., 'cit-q1-student')."
                 },
-                "source_type": {
-                  "type": "STRING",
-                  "enum": [
-                    "student_answer",
-                    "marking_schema"
-                  ],
-                  "description": "Where the citation comes from."
+                "content": {
+                  "type": "OBJECT",
+                  "properties": {
+                    "text": {
+                      "type": "STRING",
+                      "description": "The exact text quoted."
+                    },
+                    "source_type": {
+                      "type": "STRING",
+                      "enum": [
+                        "student_answer",
+                        "marking_scheme"
+                      ],
+                      "description": "Origin of the text."
+                    }
+                  },
+                  "required": [
+                    "text",
+                    "source_type"
+                  ]
+                },
+                "position": {
+                  "type": "OBJECT",
+                  "properties": {
+                    "pageNumber": {
+                      "type": "NUMBER",
+                      "description": "The page number from the input headers (e.g., '==Screenshot for page X==')."
+                    },
+                    "boundingRect": {
+                      "type": "OBJECT",
+                      "properties": {
+                        "x1": {
+                          "type": "NUMBER"
+                        },
+                        "y1": {
+                          "type": "NUMBER"
+                        },
+                        "x2": {
+                          "type": "NUMBER"
+                        },
+                        "y2": {
+                          "type": "NUMBER"
+                        },
+                        "width": {
+                          "type": "NUMBER"
+                        },
+                        "height": {
+                          "type": "NUMBER"
+                        }
+                      },
+                      "description": "Null if unknown."
+                    }
+                  },
+                  "required": [
+                    "pageNumber"
+                  ]
                 }
               },
               "required": [
-                "source_text",
-                "source_type"
+                "id",
+                "content",
+                "position"
               ]
             }
           }
@@ -67,7 +129,10 @@
         "required": [
           "question_id",
           "marks_awarded",
-          "reasoning"
+          "reasoning",
+          "missed_mark_reasoning",
+          "required_for_improvement",
+          "citations"
         ]
       }
     }

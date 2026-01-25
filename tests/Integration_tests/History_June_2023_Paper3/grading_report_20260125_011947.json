@@ -1,0 +1,333 @@
+{
+  "total_marks": 40,
+  "total_available_marks": 52,
+  "paper_name": "Pearson Edexcel GCSE (9-1) History Paper 3: Modern depth study Option 30: Russia and the Soviet Union, 1917\u201341",
+  "summary_comments": "The student demonstrates a strong understanding of the period, particularly regarding the causes of the NEP and the start of the purges. Inferences are well-supported, and the evaluation of interpretations is generally sustained. To improve, the student should ensure historical dates are accurate (e.g., the Kronstadt Mutiny relevant to the NEP was in 1921, not 1917) and use more precise contextual details to support evaluations.",
+  "question_breakdown": [
+    {
+      "question_id": "1",
+      "student_transcript": "(i) What I can infer: Kornilov is trying to remove the provisional government from power as he says they are working with the Germans. Details in the source that tell me this: \"Together, the Germans and the Government are killing our country\" (ii) What I can infer: Kornilov plans to establish an assembly, to allow Russians to decide the future of the country. Details in the source that tell me this: \"I promise to introduce a Constituent Assembly that will allow Russian people to decide their future.\"",
+      "marks_awarded": 4,
+      "max_marks_available": 4,
+      "reasoning": "The student provides two valid inferences about the aims of the Kornilov Revolt (removing the government and establishing an assembly) and supports each with a relevant quote from the source.",
+      "missed_mark_reasoning": "None",
+      "required_for_improvement": "None",
+      "citations": [
+        {
+          "id": "cit-q1-student",
+          "content": {
+            "text": "Kornilov is trying to remove the provisional government from power as he says they are working with the Germans. Details in the source that tell me this: \"Together, the Germans and the Government are killing our country\" (ii) What I can infer: Kornilov plans to establish an assembly, to allow Russians to decide the future of the country. Details in the source that tell me this: \"I promise to introduce a Constituent Assembly that will allow Russian people to decide their future.\"",
+            "source_type": "student_answer"
+          },
+          "position": {
+            "pageNumber": 3,
+            "boundingRect": {
+              "x1": 70,
+              "y1": 120,
+              "x2": 540,
+              "y2": 800
+            }
+          }
+        },
+        {
+          "id": "cit-q1-ms",
+          "content": {
+            "text": "Award 1 mark for each valid inference up to a maximum of two inferences. The second mark for each example should be awarded for supporting detail selected from the source.",
+            "source_type": "marking_scheme"
+          },
+          "position": {
+            "pageNumber": 5
+          }
+        }
+      ]
+    },
+    {
+      "question_id": "2",
+      "student_transcript": "One reason why the NEP (New Economic Policy) was introduced in 1921 was heavily based on the cruel and harsh objectives set by the Bolsheviks, during the civil war period (e.g 1918 - 1921) by War Communism. For example, War Communism was the first try by the Bolsheviks, to set up a more centralised, economic policy, with aims of requisitioning & taking by force of the crops, in order to supply the red army in the civil war. Furthermore, Lenin foresaw the brutality of War Communism & its past effects on Russia, hence why Lenin introduced the NEP, to increase the economy of Russia to level that it was, during Tsar Nicholas II's reign of Russia. Another reason why the NEP was introduced in 1921 was due to the Kronstadt Mutiny in 1917 and its past effects to what later be named as the Russian Revolution. For example, the Kronstadt mutiny was established in 1917 due to the political unrest that was occuring in Russia, during this period and was first time, sailors refused to listen to the officers and instead decided to execute officers & captains as they were accused of acting like the bourgeoisie of Russia. As a result, this would lead to soldiers on land, refusing orders and join in the revolution of Russia, asking for more rights & equality between all the classes and the establishment of the NEP in 1921, to restore the political aspect of Russia without orchestrating another revolt or war to the detriment of the population. Finally, Another Reason why the NEP was introduced in 1921 was because of the public discontent in the countryside during 1921. For Example, the tambov rebellion, happening in the tambov province, was a peasant revolt, orchestrated by the peasants, on the Red Guard requisition of their crops & repression they faced. Furthermore, with this rebellion more revolts occurred in the countryside mainly due to the harsh treatment the peasants faced during the Civil War for their food supply, So Lenin introduced the NEP as a kinder alternative to the peasants. As a result, instead of being requisitioned for their food, they were taxed and were allowed to keep a surplus of the food, gaining the support of the peasants and establishing a level of social impact on Russia.",
+      "marks_awarded": 8,
+      "max_marks_available": 12,
+      "reasoning": "The answer fits Level 3. It provides an explanation with some analysis directed at the conceptual focus (causation). It uses both stimulus points (War Communism, Kronstadt Mutiny) and own information (Tambov rebellion). The line of reasoning is generally sustained.",
+      "missed_mark_reasoning": "The student incorrectly dates the Kronstadt Mutiny relevant to the NEP as 1917 (the year of the revolution) rather than 1921. This historical inaccuracy prevents the answer from reaching Level 4, which requires precisely selected information.",
+      "required_for_improvement": "Ensure historical dates are accurate. The Kronstadt Mutiny that influenced the introduction of the NEP occurred in March 1921, not 1917.",
+      "citations": [
+        {
+          "id": "cit-q2-student-p4",
+          "content": {
+            "text": "One reason why the NEP (New Economic Policy) was introduced in 1921 was heavily based on the cruel and harsh objectives set by the Bolsheviks, during the civil war period (e.g 1918 - 1921) by War Communism. For example, War Communism was the first try by the Bolsheviks, to set up a more centralised, economic policy, with aims of requisitioning & taking by force of the crops, in order to supply the red army in the civil war. Furthermore, Lenin foresaw the brutality of War Communism & its past effects on Russia, hence why Lenin introduced the NEP, to increase the economy of Russia to level that it was, during Tsar Nicholas II's reign of Russia. Another reason why the NEP was introduced in 1921 was due to the Kronstadt Mutiny in 1917 and its past effects to what later be named as the Russian Revolution.",
+            "source_type": "student_answer"
+          },
+          "position": {
+            "pageNumber": 4,
+            "boundingRect": {
+              "x1": 70,
+              "y1": 120,
+              "x2": 540,
+              "y2": 800
+            }
+          }
+        },
+        {
+          "id": "cit-q2-student-p5",
+          "content": {
+            "text": "its past effects to what later be named as the Russian Revolution. For example, the Kronstadt mutiny was established in 1917 due to the political unrest that was occuring in Russia, during this period and was first time, sailors refused to listen to the officers and instead decided to execute officers & captains as they were accused of acting like the bourgeoisie of Russia. As a result, this would lead to soldiers on land, refusing orders and join in the revolution of Russia, asking for more rights & equality between all the classes and the establishment of the NEP in 1921, to restore the political aspect of Russia without orchestrating another revolt or war to the detriment of the population. Finally, Another Reason why the NEP was introduced in 1921 was because of the public discontent in the countryside during 1921. For Example, the tambov rebellion,",
+            "source_type": "student_answer"
+          },
+          "position": {
+            "pageNumber": 5,
+            "boundingRect": {
+              "x1": 70,
+              "y1": 120,
+              "x2": 540,
+              "y2": 800
+            }
+          }
+        },
+        {
+          "id": "cit-q2-student-p6",
+          "content": {
+            "text": "happening in the tambov province, was a peasant revolt, orchestrated by the peasants, on the Red Guard requisition of their crops & repression they faced. Furthermore, with this rebellion more revolts occurred in the countryside mainly due to the harsh treatment the peasants faced during the Civil War for their food supply, So Lenin introduced the NEP as a kinder alternative to the peasants. As a result, instead of being requisitioned for their food, they were taxed and were allowed to keep a surplus of the food, gaining the support of the peasants and establishing a level of social impact on Russia.",
+            "source_type": "student_answer"
+          },
+          "position": {
+            "pageNumber": 6,
+            "boundingRect": {
+              "x1": 70,
+              "y1": 120,
+              "x2": 540,
+              "y2": 800
+            }
+          }
+        },
+        {
+          "id": "cit-q2-ms",
+          "content": {
+            "text": "Level 3: 7\u20139. An explanation is given, showing some analysis, which is mainly directed at the conceptual focus of the question. It shows a line of reasoning that is generally sustained... Accurate and relevant information is included, showing good knowledge and understanding of the required features or characteristics of the period studied.",
+            "source_type": "marking_scheme"
+          },
+          "position": {
+            "pageNumber": 6
+          }
+        }
+      ]
+    },
+    {
+      "question_id": "3(a)",
+      "student_transcript": "Source B is useful for an enquiry into the main reason why Stalin's purges began as it takes in account, a fellow official of Stalin & Lenin and their thoughts of the current leader (e.g Stalin). For example, Bukharin, the fellow official of stalin, recounts his thoughts of Stalin & the overall impression that he gives to others, to a Russian living in exile. As a result, most of the information in Source B is mostly to Stalin's brutal and horrifying nature, which can be linked to how he ordered his way of violent repression (e.g purges). The Limitations can be that they can be biased, intended to downgrade the reputation of Stalin, not referencing positive aspects of Stalin. In addition, Source C is useful for an enquiry into how stalins purges began as Source C mentions how Kirov's assassination led to Stalin repressing and removing opponents to the party, who were considered threats to him. For example, Victor Kravchenko, a russian official of the communist party, recounts how Kirov's killer, Nicolayev was working with foreign countries to remove stalin, showing how this was an international plan to save russia. Furthermore, many other members of the bolsheviks & political opponents were also linked with Nicolayev, suggesting that everyone wanted to remove Stalin with immediate effect. As a result, this led to Stalin's paranoia increasing, eventually leading him to start purging enemies of him, to establish an autocratic dictatorship. However, the account only states about the aftermath of Kirov's murder and not other events, such as the Ryutin Affair and the OGPU and the NKVD.",
+      "marks_awarded": 5,
+      "max_marks_available": 8,
+      "reasoning": "The answer is in Level 2. Judgements on source utility are given using valid criteria (content and provenance). Contextual knowledge (Ryutin Affair, OGPU/NKVD) is used to support comments on usefulness.",
+      "missed_mark_reasoning": "To reach Level 3, the student needs more developed reasoning that more explicitly links the provenance to the usefulness of the content, and uses contextual knowledge more effectively in the process of interpreting the sources.",
+      "required_for_improvement": "Develop the evaluation of provenance further. For example, explain how Bukharin's private conversation might be more honest, or how Kravchenko's position as an official gives him insider knowledge.",
+      "citations": [
+        {
+          "id": "cit-q3a-student-p7",
+          "content": {
+            "text": "Source B is useful for an enquiry into the main reason why Stalin's purges began as it takes in account, a fellow official of Stalin & Lenin and their thoughts of the current leader (e.g Stalin). For example, Bukharin, the fellow official of stalin, recounts his thoughts of Stalin & the overall impression that he gives to others, to a Russian living in exile. As a result, most of the information in Source B is mostly to Stalin's brutal and horrifying nature, which can be linked to how he ordered his way of violent repression (e.g purges). The Limitations can be that they can be biased, intended to downgrade the reputation of Stalin, not referencing positive aspects of Stalin.",
+            "source_type": "student_answer"
+          },
+          "position": {
+            "pageNumber": 7,
+            "boundingRect": {
+              "x1": 70,
+              "y1": 120,
+              "x2": 540,
+              "y2": 800
+            }
+          }
+        },
+        {
+          "id": "cit-q3a-student-p8",
+          "content": {
+            "text": "In addition, Source C is useful for an enquiry into how stalins purges began as Source C mentions how Kirov's assassination led to Stalin repressing and removing opponents to the party, who were considered threats to him. For example, Victor Kravchenko, a russian official of the communist party, recounts how Kirov's killer, Nicolayev was working with foreign countries to remove stalin, showing how this was an international plan to save russia. Furthermore, many other members of the bolsheviks & political opponents were also linked with Nicolayev, suggesting that everyone wanted to remove Stalin with immediate effect. As a result, this led to Stalin's paranoia increasing, eventually leading him to start purging enemies of him, to establish an autocratic dictatorship. However, the account only states about the aftermath of Kirov's murder and not other events, such as the Ryutin Affair and the OGPU and the NKVD.",
+            "source_type": "student_answer"
+          },
+          "position": {
+            "pageNumber": 8,
+            "boundingRect": {
+              "x1": 70,
+              "y1": 120,
+              "x2": 540,
+              "y2": 800
+            }
+          }
+        },
+        {
+          "id": "cit-q3a-ms",
+          "content": {
+            "text": "Level 2: 3\u20135. Judgements on source utility for the specified enquiry are given, using valid criteria. Judgements are supported by developed comment related to the content of the sources and/or their provenance. Comprehension and some analysis of the sources is shown by the selection and use of material to support comments on their utility. Contextual knowledge is used directly to support comments on the usefulness of the content of the sources and/or their provenance.",
+            "source_type": "marking_scheme"
+          },
+          "position": {
+            "pageNumber": 8
+          }
+        }
+      ]
+    },
+    {
+      "question_id": "3(b)",
+      "student_transcript": "The main difference between the views of Interpretation 1 and Interpretation 2 can be that Interpretation 1 talks about how his personality & impression caused him to the beginning of the purges, whereas in Interpretation 2, they believe Kirov's murder was the start to the purges. Furthermore, In Interp 1, the author talks about how his self obsession to being better than Lenin, caused him to start the purges, to establish self dominance over Lenin's party & establish his own party. However, In interp 2, the author talks about how Kirov's murder led to Stalin tightening his control of the country by removing and executing political opponents, showing the start of the purges.",
+      "marks_awarded": 4,
+      "max_marks_available": 4,
+      "reasoning": "The student correctly identifies the key difference in view (personality vs. Kirov's murder) and supports this with details from both interpretations.",
+      "missed_mark_reasoning": "None",
+      "required_for_improvement": "None",
+      "citations": [
+        {
+          "id": "cit-q3b-student-p9",
+          "content": {
+            "text": "The main difference between the views of Interpretation 1 and Interpretation 2 can be that Interpretation 1 talks about how his personality & impression caused him to the beginning of the purges, whereas in Interpretation 2, they believe Kirov's murder was the start to the purges. Furthermore, In Interp 1, the author talks about how his self obsession to being better than Lenin, caused him to start the purges, to establish self dominance over Lenin's party & establish his own party. However, In interp 2, the author talks about how Kirov's murder led to Stalin tightening his control of the country by removing and executing political opponents, showing the start of the purges.",
+            "source_type": "student_answer"
+          },
+          "position": {
+            "pageNumber": 9,
+            "boundingRect": {
+              "x1": 70,
+              "y1": 120,
+              "x2": 540,
+              "y2": 800
+            }
+          }
+        },
+        {
+          "id": "cit-q3b-ms",
+          "content": {
+            "text": "Level 2: 3\u20134. The interpretations are analysed and a key difference of view is identified and supported from them.",
+            "source_type": "marking_scheme"
+          },
+          "position": {
+            "pageNumber": 10
+          }
+        }
+      ]
+    },
+    {
+      "question_id": "3(c)",
+      "student_transcript": "One reason why Interp 1 and 2 give different views about the main reason why Stalin's purges began was Interp 1 heavily bases the main factor that caused the purges of 1936-1938 was his personality & impression, which can be linked to Source B as Bukharin talks about Stalin's opinion on people who are better than him, showing how he wants to be better than everyone (very autocratic & capitalist mindset). Furthermore, in Interp 2, it mainly talks about Kirov's murder was the initial spark to what was about to occur in Russia (The purges). Also, in Source C, it talks about everyone who was linked to the murder of Kirov, was seen as a threat to Stalin's dictatorship (e.g members of the 1917 Bolshevik Party) and needed to be removed by the purges.",
+      "marks_awarded": 4,
+      "max_marks_available": 4,
+      "reasoning": "The student provides a valid reason for the difference (giving weight to different sources) and substantiates this effectively using Sources B and C as requested.",
+      "missed_mark_reasoning": "None",
+      "required_for_improvement": "None",
+      "citations": [
+        {
+          "id": "cit-q3c-student-p10",
+          "content": {
+            "text": "One reason why Interp 1 and 2 give different views about the main reason why Stalin's purges began was Interp 1 heavily bases the main factor that caused the purges of 1936-1938 was his personality & impression, which can be linked to Source B as Bukharin talks about Stalin's opinion on people who are better than him, showing how he wants to be better than everyone (very autocratic & capitalist mindset). Furthermore, in Interp 2, it mainly talks about Kirov's murder was the initial spark to what was about to occur in Russia (The purges). Also, in Source C, it talks about everyone who was linked to the murder of Kirov, was seen as a threat to Stalin's dictatorship (e.g members of the 1917 Bolshevik Party) and needed to be removed by the purges.",
+            "source_type": "student_answer"
+          },
+          "position": {
+            "pageNumber": 10,
+            "boundingRect": {
+              "x1": 70,
+              "y1": 120,
+              "x2": 540,
+              "y2": 800
+            }
+          }
+        },
+        {
+          "id": "cit-q3c-ms",
+          "content": {
+            "text": "Level 2: 3\u20134. An explanation of a reason for difference is given, analysing the interpretations. The explanation is substantiated effectively.",
+            "source_type": "marking_scheme"
+          },
+          "position": {
+            "pageNumber": 11
+          }
+        }
+      ]
+    },
+    {
+      "question_id": "3(d)",
+      "student_transcript": "I strongly agree with Interpretation 2 about the main reason why Stalin's purges began as the murder of Kirov was the spark in the unravelling of a violent, repressive regime, instructed by Stalin, to remove possible opponents & threats to his dictatorship of the people & proletariat of Russia. For example, the murder of Kirov was used as a violent warning by Stalin, in the form of propaganda, created by the agitprop, to show the public that politicians are for the cause of Kirov's death and that they did this to overthrow the party. As a result of this, Stalin began to be paranoid & suspicious of the members of his party and believed that they were planning to remove him and the party from existence, thus starting the purges, to tighten the control of the country & remove threats to his regime. On the other hand, some would disagree with Interpretation 2, as being the main reason to why Stalin's purges began as others may say that it was Stalin's personality & impression, that lead to the purges of 1936-1938. For example, in interpretation 1, the author proclaims that Stalin's self obsession was the key main factor for the start of purges. Furthermore, the use of his self-obsession can lead to someone becoming paranoid and jealous of others, who held higher positions than him (e.g Lenin, Trotsky etc.). Therefore, with this jealousy and paranoia, he decided to purge members that were close to these people, in order to establish an autocratic, formidable regime, which no one of Russia, could stop. In addition, I would strongly agree that Interpretation 1 played a key role in terms of why Stalin's purges began because the use of personality & impression played a key role into why he wanted to be better than everyone. For example, In Interpretation 1, it is suggested by the account, that he believed he was a genius, who would play a key and unique historical role in the transformation of Russia. However, his urge to be better than everyone but also prove to them was inevitable as everyone saw Lenin as the saviour of Russia but saw Stalin as someone jealous and paranoid of being next to Lenin. Furthermore, it was shown through Stalin, as someone who is power hungry and would do anything to grip power and control (e.g dissolving the old Bolshevik party and establishing his own party). Conversely, I would disagree that Interpretation 1 was the main factor but rather Interpretation 2 because personally, one man's personality can't have been the change for 40,000 people as it looks too vague and unusual. However, the use of a key event such as the assassination of Kirov can be believable as Kirov was one of key leading figures in the party and established his position as someone, who was a great speaker and politician for the people of Russia. In addition, this was someone, who was very close to Stalin and if he was murdered, the consequences of this atrocity would be great & massive to the detriment of the politburo as Stalin saw this event as a plot to overthrow the party, so he claimed that famous politicians (e.g Bukharin and Trotsky etc) were also responsible alongside the other Bolshevik officials. Therefore, leading to beginning of the purges, to avenge his fellow officials death.",
+      "marks_awarded": 15,
+      "max_marks_available": 20,
+      "reasoning": "The answer provides an explained evaluation, reviewing alternative views and coming to a judgement. It shows good analysis of both interpretations and uses relevant contextual knowledge (agitprop, 40,000 figure). The line of reasoning is generally sustained. This merits 12/16 for AO4. For SPaG, the student demonstrates considerable accuracy and a good range of specialist terms, earning 3/4.",
+      "missed_mark_reasoning": "To reach Level 4 (13-16 marks), the contextual knowledge needs to be more precisely selected and the analysis of how differences of view are conveyed needs to be more precise. The 40,000 figure is slightly misapplied as a total rather than a local figure for Leningrad.",
+      "required_for_improvement": "Use more precise contextual details. For example, specify that the 40,000 arrests were in Leningrad alone. Also, more explicitly analyze how the language used in the interpretations conveys their different views.",
+      "citations": [
+        {
+          "id": "cit-q3d-student-p11",
+          "content": {
+            "text": "I strongly agree with Interpretation 2 about the main reason why Stalin's purges began as the murder of Kirov was the spark in the unravelling of a violent, repressive regime, instructed by Stalin, to remove possible opponents & threats to his dictatorship of the people & proletariat of Russia. For example, the murder of Kirov was used as a violent warning by Stalin, in the form of propaganda, created by the agitprop, to show the public that politicians are for the cause of Kirov's death and that they did this to overthrow the party. As a result of this, Stalin began to be paranoid & suspicious of the members of his party and believed that they were planning to remove him and the party from existence, thus starting the purges, to tighten the control of the country & remove threats to his regime.",
+            "source_type": "student_answer"
+          },
+          "position": {
+            "pageNumber": 11,
+            "boundingRect": {
+              "x1": 70,
+              "y1": 120,
+              "x2": 540,
+              "y2": 800
+            }
+          }
+        },
+        {
+          "id": "cit-q3d-student-p12",
+          "content": {
+            "text": "On the other hand, some would disagree with Interpretation 2, as being the main reason to why Stalin's purges began as others may say that it was Stalin's personality & impression, that lead to the purges of 1936-1938. For example, in interpretation 1, the author proclaims that Stalin's self obsession was the key main factor for the start of purges. Furthermore, the use of his self-obsession can lead to someone becoming paranoid and jealous of others, who held higher positions than him (e.g Lenin, Trotsky etc.). Therefore, with this jealousy and paranoia, he decided to purge members that were close to these people, in order to establish an autocratic, formidable regime, which no one of Russia, could stop.",
+            "source_type": "student_answer"
+          },
+          "position": {
+            "pageNumber": 12,
+            "boundingRect": {
+              "x1": 70,
+              "y1": 120,
+              "x2": 540,
+              "y2": 800
+            }
+          }
+        },
+        {
+          "id": "cit-q3d-student-p13",
+          "content": {
+            "text": "In addition, I would strongly agree that Interpretation 1 played a key role in terms of why Stalin's purges began because the use of personality & impression played a key role into why he wanted to be better than everyone. For example, In Interpretation 1, it is suggested by the account, that he believed he was a genius, who would play a key and unique historical role in the transformation of Russia. However, his urge to be better than everyone but also prove to them was inevitable as everyone saw Lenin as the saviour of Russia but saw Stalin as someone jealous and paranoid of being next to Lenin. Furthermore, it was shown through Stalin, as someone who is power hungry and would do anything to grip power and control (e.g dissolving the old Bolshevik party and establishing his own party). Conversely, I would disagree that Interpretation 1 was the main factor but rather Interpretation 2 because",
+            "source_type": "student_answer"
+          },
+          "position": {
+            "pageNumber": 13,
+            "boundingRect": {
+              "x1": 70,
+              "y1": 120,
+              "x2": 540,
+              "y2": 800
+            }
+          }
+        },
+        {
+          "id": "cit-q3d-student-p14",
+          "content": {
+            "text": "personally, one man's personality can't have been the change for 40,000 people as it looks too vague and unusual. However, the use of a key event such as the assassination of Kirov can be believable as Kirov was one of key leading figures in the party and established his position as someone, who was a great speaker and politician for the people of Russia. In addition, this was someone, who was very close to Stalin and if he was murdered, the consequences of this atrocity would be great & massive to the detriment of the politburo as Stalin saw this event as a plot to overthrow the party, so he claimed that famous politicians (e.g Bukharin and Trotsky etc) were also responsible alongside the other Bolshevik officials. Therefore, leading to beginning of the purges, to avenge his fellow officials death.",
+            "source_type": "student_answer"
+          },
+          "position": {
+            "pageNumber": 14,
+            "boundingRect": {
+              "x1": 70,
+              "y1": 120,
+              "x2": 540,
+              "y2": 800
+            }
+          }
+        },
+        {
+          "id": "cit-q3d-ms",
+          "content": {
+            "text": "Level 3: 9\u201312. Answer provides an explained evaluation, agreeing or disagreeing with the interpretation. Good analysis of the interpretations is shown indicating difference of view and deploying this to support the evaluation. Relevant contextual knowledge is used directly to support the evaluation. An overall judgement is given with some justification and a line of reasoning is generally sustained.",
+            "source_type": "marking_scheme"
+          },
+          "position": {
+            "pageNumber": 12
+          }
+        }
+      ]
+    }
+  ],
+  "llm_usage_metadata": {
+    "candidates_token_count": 7284,
+    "prompt_token_count": 18750,
+    "thoughts_token_count": 5984,
+    "total_token_count": 32018,
+    "estimated_cost_usd": 0.009375
+  }
+}
