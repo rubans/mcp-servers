@@ -136,6 +136,15 @@ def calculate_cost(model: str, input_tokens: int, output_tokens: int) -> float:
 
 
 
+
+def format_tool_error(error_msg: str, error_code: str = "TOOL_ERROR", details: Dict[str, Any] = None) -> str:
+    """Returns a structured JSON error string."""
+    return json.dumps({
+        "error": error_msg,
+        "error_code": error_code,
+        "details": details or {}
+    })
+
 # ---------- MCP server ----------
 mcp = FastMCP("Gemini Text MCP")
 logger.info("start gemini text mcp server...")
@@ -260,36 +269,36 @@ async def gemini_generate_text(
       response_mime_type: Optional MIME type for the response (e.g., "application/json").
       response_schema: Optional JSON string schema for controlled generation.
     """
-    client = _get_client()
-    
-    config_args = {}
-    if temperature is not None:
-        config_args["temperature"] = temperature
-    if max_output_tokens is not None:
-        config_args["max_output_tokens"] = max_output_tokens
-    if system_instruction:
-        config_args["system_instruction"] = system_instruction
-    if response_mime_type:
-        config_args["response_mime_type"] = response_mime_type
-
-    if response_schema:
-        try:
-            config_args["response_schema"] = json.loads(response_schema)
-            if not response_mime_type:
-                config_args["response_mime_type"] = "application/json"
-        except json.JSONDecodeError as e:
-            raise ToolError(f"Invalid JSON provided for response_schema: {e}")
-
-    config = gtypes.GenerateContentConfig(**config_args) if config_args else None
-
-    if ctx:
-        await ctx.info(f"Starting Gemini text generation with model {model}...")
-
-    parts = [gtypes.Part.from_text(text=prompt)]
-    parts.extend(_load_file_parts(input_paths))
-    contents = [gtypes.Content(role="user", parts=parts)]
-
     try:
+        client = _get_client()
+        
+        config_args = {}
+        if temperature is not None:
+            config_args["temperature"] = temperature
+        if max_output_tokens is not None:
+            config_args["max_output_tokens"] = max_output_tokens
+        if system_instruction:
+            config_args["system_instruction"] = system_instruction
+        if response_mime_type:
+            config_args["response_mime_type"] = response_mime_type
+
+        if response_schema:
+            try:
+                config_args["response_schema"] = json.loads(response_schema)
+                if not response_mime_type:
+                    config_args["response_mime_type"] = "application/json"
+            except json.JSONDecodeError as e:
+                return format_tool_error(f"Invalid JSON provided for response_schema: {e}", "INVALID_SCHEMA")
+
+        config = gtypes.GenerateContentConfig(**config_args) if config_args else None
+
+        if ctx:
+            await ctx.info(f"Starting Gemini text generation with model {model}...")
+
+        parts = [gtypes.Part.from_text(text=prompt)]
+        parts.extend(_load_file_parts(input_paths))
+        contents = [gtypes.Content(role="user", parts=parts)]
+
         logger.info(f"Generating text with model {model}...")
         if ctx:
             await ctx.report_progress(1, 2)
@@ -318,9 +327,10 @@ async def gemini_generate_text(
                 pass # Return original text if not valid JSON
 
         return response.text
+
     except Exception as e:
         logger.error(f"Gemini text generation failed: {e}", exc_info=True)
-        raise ToolError(f"Gemini text generation failed: {e}")
+        return format_tool_error(f"Gemini text generation failed: {e}", "GENERATION_FAILED")
 
 @mcp.tool()
 async def gemini_estimate_tokens(
@@ -338,13 +348,13 @@ async def gemini_estimate_tokens(
       model: The model to use (default: gemini-3-flash-preview).
       system_instruction: Optional system instruction.
     """
-    client = _get_client()
-    
-    parts = [gtypes.Part.from_text(text=prompt)]
-    parts.extend(_load_file_parts(input_paths))
-    contents = [gtypes.Content(role="user", parts=parts)]
-    
     try:
+        client = _get_client()
+        
+        parts = [gtypes.Part.from_text(text=prompt)]
+        parts.extend(_load_file_parts(input_paths))
+        contents = [gtypes.Content(role="user", parts=parts)]
+        
         # Note: system_instruction might need to be passed differently or might not affect input token count significantly enough 
         # for a rough estimate, but the API supports it in count_tokens config if needed.
         # For simplicity, we just count the user content, which is the bulk. 
@@ -366,11 +376,31 @@ async def gemini_estimate_tokens(
         })
     except Exception as e:
         logger.error(f"Gemini token estimation failed: {e}", exc_info=True)
-        raise ToolError(f"Gemini token estimation failed: {e}")
+        return format_tool_error(f"Gemini token estimation failed: {e}", "ESTIMATION_FAILED")
 
 
 @mcp.tool()
 async def gemini_grade_exam(
+    exam_paper_path: str,
+    rubric_path: str,
+    model: str = "gemini-3-flash-preview",
+    ctx: Context = None,
+) -> str:
+    """ 
+    Grade an exam paper (PDF) against a marking rubric (PDF), returning a structured JSON report.
+
+    Args:
+      exam_paper_path: Path to the exam paper PDF.
+      rubric_path: Path to the marking rubric PDF.
+      model: The model to use (default: gemini-3-flash-preview).
+    """
+    try:
+        return await _gemini_grade_exam_impl(exam_paper_path, rubric_path, model, ctx)
+    except Exception as e:
+        logger.error(f"Grading failed: {e}", exc_info=True)
+        return format_tool_error(f"Grading failed: {e}", "GRADING_FAILED")
+
+async def _gemini_grade_exam_impl(
     exam_paper_path: str,
     rubric_path: str,
     model: str = "gemini-3-flash-preview",
@@ -385,6 +415,7 @@ async def gemini_grade_exam(
       model: The model to use (default: gemini-3-flash-preview).
     """
     schema_path = os.path.join(os.path.dirname(__file__), "exam_grading_schema.json")
+    logger.info(f"--- Starting Grade Exam: Exam='{exam_paper_path}', Rubric='{rubric_path}' ---")
     try:
         with open(schema_path, "r") as f:
             schema = json.load(f)
@@ -413,6 +444,7 @@ async def gemini_grade_exam(
     
     exam_parts = _load_file_parts(exam_paper_path)
     parts.extend(exam_parts)
+    logger.info(f"Loaded file parts. Rubric segments: {len(rubric_parts)}, Exam segments: {len(exam_parts)}")
 
     # Helper to extract metadata async
     import asyncio
@@ -455,14 +487,20 @@ async def gemini_grade_exam(
         extract_meta_async(rubric_parts, "Rubric"),
         extract_meta_async(exam_parts, "Exam")
     )
+    logger.info(f"Metadata extracted: Exam Pages={exam_meta.get('page_count')}, Rubric Pages={rubric_meta.get('page_count')}")
     
     # Check Limits (example: 30 pages)
     LIMIT = 30
     if exam_meta["page_count"] > LIMIT:
         msg = f"Exam exceeds basic plan page limit ({LIMIT} pages). Submitted: {exam_meta['page_count']} pages."
         logger.error(msg)
-        raise ToolError(msg)
+        return format_tool_error(msg, "PAGE_LIMIT_EXCEEDED", {
+            "page_count": exam_meta["page_count"],
+            "limit": LIMIT
+        })
     
+    logger.info("Page limit check passed. Proceeding to generation...")
+
     try:
         logger.info(f"Grading exam with model {model}...")
         if ctx:
@@ -484,6 +522,7 @@ async def gemini_grade_exam(
             
         # Parse the output and inject usage stats
         try:
+            logger.info("Parsing structured JSON response from Gemini...")
             # The response text should be JSON because we requested it
             grading_report = json.loads(response.text)
             
